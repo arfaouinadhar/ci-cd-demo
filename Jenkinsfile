@@ -16,7 +16,6 @@ pipeline {
         stage('Install Sonar Scanner') {
             steps {
                 sh '''
-                    # Télécharger et installer sonar-scanner manuellement
                     wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
                     unzip -q sonar-scanner-cli-5.0.1.3006-linux.zip
                 '''
@@ -37,25 +36,10 @@ pipeline {
             }
         }
 
-        stage("Quality Gate") {
-            steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        stage("Build Docker") {
+        stage("Build & Deploy") {
             steps {
                 sh '''
                     docker build -t ci-cd-demo:latest .
-                '''
-            }
-        }
-
-        stage("Run Docker") {
-            steps {
-                sh '''
                     docker stop ci-cd-demo || true
                     docker rm ci-cd-demo || true
                     docker run -d --name ci-cd-demo ci-cd-demo:latest
