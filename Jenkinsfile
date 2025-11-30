@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        sonarScanner 'sonar-scanner'
+        sonarScanner 'sonarScanner'   // exactement le nom qu’on vient de mettre
     }
 
     environment {
@@ -32,19 +32,11 @@ pipeline {
             }
         }
 
-        stage('Build Docker') {
+        stage('Build & Run Docker') {
             steps {
                 sh 'docker build -t ci-cd-demo:latest .'
-            }
-        }
-
-        stage('Run Docker') {
-            steps {
-                sh '''
-                    docker stop ci-cd-demo || true
-                    docker rm ci-cd-demo || true
-                    docker run -d --name ci-cd-demo ci-cd-demo:latest
-                '''
+                sh 'docker stop ci-cd-demo || true && docker rm ci-cd-demo || true'
+                sh 'docker run -d --name ci-cd-demo ci-cd-demo:latest'
             }
         }
     }
