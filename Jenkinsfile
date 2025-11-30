@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        sonarScanner 'sonarScanner'   
+        sonarQubeScanner'sonarScanner'   
     }
 
     environment {
