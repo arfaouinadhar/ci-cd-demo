@@ -13,12 +13,26 @@ pipeline {
             }
         }
 
+        stage('Clean Workspace') {
+            steps {
+                sh '''
+                    # Nettoyer les installations précédentes de Sonar Scanner
+                    rm -rf sonar-scanner* .scannerwork
+                '''
+            }
+        }
+
         stage('Install Sonar Scanner') {
             steps {
                 sh '''
-                    # Télécharger et installer sonar-scanner manuellement
+                    # Télécharger Sonar Scanner
                     wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-                    unzip -q sonar-scanner-cli-5.0.1.3006-linux.zip
+                    
+                    # Extraire sans interaction utilisateur
+                    unzip -q -o sonar-scanner-cli-5.0.1.3006-linux.zip
+                    
+                    # Vérifier que l'installation a réussi
+                    ls -la sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner
                 '''
             }
         }
@@ -39,7 +53,7 @@ pipeline {
 
         stage("Quality Gate") {
             steps {
-                timeout(time: 1, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -61,6 +75,24 @@ pipeline {
                     docker run -d --name ci-cd-demo ci-cd-demo:latest
                 '''
             }
+        }
+
+        stage('Cleanup') {
+            steps {
+                sh '''
+                    # Nettoyer les fichiers temporaires
+                    rm -rf sonar-scanner-cli-*.zip
+                '''
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline CI/CD terminé!'
+        }
+        success {
+            echo '✅ SUCCÈS: Application déployée avec analyse qualité!'
         }
     }
 }
