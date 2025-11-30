@@ -39,8 +39,7 @@ pipeline {
 
         stage("Quality Gate") {
             steps {
-                // CORRECTION : Augmenter le timeout à 5 minutes
-                timeout(time: 5, unit: 'MINUTES') {
+                timeout(time: 1, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -62,15 +61,6 @@ pipeline {
                     docker run -d --name ci-cd-demo ci-cd-demo:latest
                 '''
             }
-        }
-    }
-    
-    post {
-        always {
-            echo 'Pipeline CI/CD terminé!'
-        }
-        success {
-            echo '✅ SUCCÈS: Application déployée avec analyse qualité!'
         }
     }
 }
